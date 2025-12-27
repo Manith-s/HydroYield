@@ -4,12 +4,12 @@ A Flask-based API system for intelligent crop recommendation and yield predictio
 
 ## What This Does
 
-- **Real-time Environmental Monitoring**: Collects and processes sensor data (temperature, humidity, pH, rainfall) from IoT devices
-- **Intelligent Crop Recommendation**: ML-powered suggestions for crops best suited to current environmental conditions
-- **Yield Prediction**: Advanced estimation of potential crop yields with confidence scoring and prediction intervals
-- **Growing Condition Optimization**: Actionable recommendations to improve environmental parameters for specific crops
-- **Historical Analysis**: Trend analysis and visualization of environmental parameters over time
-- **IoT Integration**: Arduino and ESP8266 firmware for sensor data collection and transmission
+- Collects and processes real-time sensor data (temperature, humidity, pH, rainfall) from IoT devices
+- Provides ML-powered crop recommendations based on current environmental conditions
+- Predicts crop yields with confidence scoring and prediction intervals
+- Suggests actionable improvements to optimize growing conditions for specific crops
+- Analyzes historical environmental trends and sensor data patterns
+- Supports Arduino and ESP8266 hardware for sensor data collection and transmission
 
 ## Architecture
 
@@ -48,33 +48,16 @@ A Flask-based API system for intelligent crop recommendation and yield predictio
 - Random Forest models for crop classification and yield regression
 - Rule-based fallback predictions when ML models are unavailable
 - Data quality scoring and VPD (Vapor Pressure Deficit) calculations
-- Support for multiple IoT devices with device management
-- Historical data retrieval with time-range filtering
+- Multi-device support with device management and status tracking
+- Historical data retrieval with configurable time-range filtering
 
 ## Tech Stack
 
-**Backend**
-- Flask 2.2.3
-- Flask-CORS 3.0.10
-- PyMongo 4.3.3
-- Python 3.8+
-
-**Machine Learning**
-- scikit-learn 1.2.2
-- pandas 1.5.3
-- numpy 1.24.2
-- joblib 1.2.0
-
-**Database**
-- MongoDB 4.4+
-
-**Hardware**
-- Arduino (C++)
-- ESP8266 (C++)
-
-**Other**
-- python-dotenv 1.0.0
-- gunicorn 20.1.0
+**Backend**: Flask 2.2.3, Flask-CORS 3.0.10, PyMongo 4.3.3, Python 3.8+  
+**Machine Learning**: scikit-learn 1.2.2, pandas 1.5.3, numpy 1.24.2, joblib 1.2.0  
+**Database**: MongoDB 4.4+  
+**Hardware**: Arduino (C++), ESP8266 (C++)  
+**Other**: python-dotenv 1.0.0, gunicorn 20.1.0
 
 ## Repository Structure
 
@@ -84,31 +67,22 @@ crop_yield_prediction/
 │   ├── app.py                    # Flask application entry point
 │   ├── config.py                 # Configuration management
 │   ├── requirements.txt          # Python dependencies
-│   ├── controllers/
-│   │   ├── sensor_controller.py  # Sensor data endpoints
-│   │   └── prediction_controller.py  # ML prediction endpoints
-│   ├── services/
-│   │   ├── data_service.py       # Data processing & analytics
-│   │   └── ml_service.py         # ML model inference
-│   ├── models/
-│   │   ├── crop_model.py         # Crop data models
-│   │   └── sensor_model.py       # Sensor data models
-│   └── utils/
-│       └── helpers.py            # Validation & utilities
+│   ├── controllers/              # API route handlers
+│   ├── services/                 # Business logic
+│   ├── models/                   # Data models
+│   └── utils/                    # Helper functions
 ├── ml/
 │   ├── train_model.py            # Crop prediction model training
-│   ├── crop_yield_predictor.py    # Yield prediction model
+│   ├── crop_yield_predictor.py   # Yield prediction model
 │   ├── preprocess.py             # Data preprocessing
 │   ├── evaluate.py               # Model evaluation
-│   └── models/
-│       └── random_forest_model.pkl  # Trained model files
+│   └── models/                   # Trained model files
 ├── hardware/
 │   ├── arduino_code.ino          # Arduino sensor code
 │   └── esp8266_code.ino          # ESP8266 WiFi module code
 ├── data/
 │   └── cpdata.csv                # Crop dataset
-├── LICENSE                        # MIT License
-└── README.md                      # This file
+└── LICENSE                        # MIT License
 ```
 
 ## Quickstart
@@ -217,42 +191,18 @@ crop_yield_prediction/
 
 All endpoints require an `X-API-Key` header with your API key (except `/` and `/health`).
 
-#### Sensor Data
+**Sensor Data**
+- `POST /api/sensor-data` - Submit sensor readings
+- `GET /api/sensor-data/<device_id>` - Get sensor history (`?days=7&limit=100`)
+- `GET /api/devices` - List all registered devices
 
-**POST `/api/sensor-data`**
-- Submit sensor readings from IoT devices
-- Body: `{"device_id": "device1", "temperature": 25.5, "humidity": 60.2, "ph": 6.8, "rainfall": 100}`
-
-**GET `/api/sensor-data/<device_id>`**
-- Get sensor history for a device
-- Query params: `?days=7&limit=100`
-
-**GET `/api/devices`**
-- List all registered devices
-
-#### Predictions
-
-**POST `/api/predict`**
-- Predict suitable crops for current conditions
-- Body: `{"temperature": 25, "humidity": 70, "ph": 6.5, "rainfall": 150}`
-
-**POST `/api/predict-yield`**
-- Estimate crop yield
-- Body: `{"crop": "rice", "temperature": 25, "humidity": 70, "ph": 6.5, "rainfall": 150}`
-
-**GET `/api/optimal-conditions/<crop>`**
-- Get optimal growing conditions for a crop
-
-**POST `/api/suggest-improvements`**
-- Get suggestions to improve conditions
-- Body: `{"crop": "rice", "current_conditions": {"temperature": 30, "humidity": 50, "ph": 5.0}}`
-
-**GET `/api/analyze-crop/<crop_name>`**
-- Analyze historical data for a crop
-- Query params: `?days=30`
-
-**GET `/api/crops`**
-- List all supported crops
+**Predictions**
+- `POST /api/predict` - Predict suitable crops for current conditions
+- `POST /api/predict-yield` - Estimate crop yield
+- `GET /api/optimal-conditions/<crop>` - Get optimal growing conditions
+- `POST /api/suggest-improvements` - Get suggestions to improve conditions
+- `GET /api/analyze-crop/<crop_name>` - Analyze historical data (`?days=30`)
+- `GET /api/crops` - List all supported crops
 
 ### Example API Calls
 
@@ -281,17 +231,8 @@ curl -X POST http://localhost:5000/api/predict-yield \
 
 ### IoT Device Setup
 
-1. **Arduino Setup**
-   - Upload `hardware/arduino_code.ino` to your Arduino
-   - Connect sensors: DS18B20 (temperature), pH sensor, humidity sensor
-   - Configure pin assignments in the code
-
-2. **ESP8266 Setup**
-   - Upload `hardware/esp8266_code.ino` to your ESP8266
-   - Update WiFi credentials: `WIFI_SSID`, `WIFI_PASSWORD`
-   - Update server URL: `SERVER_URL`
-   - Update API key: `API_KEY`
-   - Connect Arduino serial output to ESP8266 RX/TX pins
+1. **Arduino**: Upload `hardware/arduino_code.ino`, connect DS18B20 (temperature), pH sensor, humidity sensor
+2. **ESP8266**: Upload `hardware/esp8266_code.ino`, update WiFi credentials (`WIFI_SSID`, `WIFI_PASSWORD`), server URL (`SERVER_URL`), and API key (`API_KEY`)
 
 ## Testing
 
@@ -309,20 +250,20 @@ python ml/preprocess.py data/cpdata.csv data/processed_data.csv
 
 ### Production Deployment
 
-1. **Set environment variables** for production:
+1. Set environment variables for production:
    ```env
    FLASK_ENV=production
    DEBUG=False
    ```
 
-2. **Use a production WSGI server**:
+2. Use a production WSGI server:
    ```bash
    gunicorn -w 4 -b 0.0.0.0:5000 app:app
    ```
 
-3. **Configure MongoDB** for production (replica set, authentication, etc.)
+3. Configure MongoDB for production (replica set, authentication, etc.)
 
-4. **Set up reverse proxy** (nginx/Apache) for SSL termination
+4. Set up reverse proxy (nginx/Apache) for SSL termination
 
 ### Hardware Deployment
 
@@ -354,16 +295,15 @@ python ml/preprocess.py data/cpdata.csv data/processed_data.csv
 - Change port: `export PORT=5001` or update in `.env`
 - Kill existing process: `lsof -ti:5000 | xargs kill` (Linux/Mac)
 
-## Roadmap
+## Optional Enhancements
 
-- [ ] Add unit and integration tests
-- [ ] Implement Docker containerization
-- [ ] Add API documentation (OpenAPI/Swagger)
-- [ ] Implement user authentication and multi-user support
-- [ ] Add real-time notifications for out-of-range conditions
-- [ ] Create web dashboard for visualization
-- [ ] Add automated model retraining pipeline
-- [ ] Support for additional sensor types
+If needed, you could add:
+
+- Starter test coverage for core API endpoints and services
+- Dev-only Docker Compose setup for local MongoDB and Flask app
+- Published OpenAPI/Swagger spec for interactive API documentation
+- Sample seed script to populate initial crop data and test sensor readings
+- Alerting hooks for out-of-range environmental conditions (email/webhook)
 
 ## License
 
