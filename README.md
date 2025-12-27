@@ -268,18 +268,6 @@ Set environment variables for production (`FLASK_ENV=production`, `DEBUG=False`)
 
 **Port Already in Use**: Change port via `export PORT=5001` or update in `.env`, kill existing process if needed.
 
-## Optional Enhancements
-
-If needed, you could add:
-
-- Starter test coverage for core API endpoints and services
-- Dev-only Docker Compose setup for local MongoDB and Flask app
-- Published OpenAPI/Swagger spec for interactive API documentation
-- Sample seed script to populate initial crop data and test sensor readings
-- Alerting hooks for out-of-range environmental conditions (email/webhook)
-- CI/CD pipeline for automated testing and deployment
-- Web dashboard for real-time sensor data visualization
-
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
