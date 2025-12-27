@@ -234,7 +234,7 @@ curl -X POST http://localhost:5000/api/predict-yield \
 1. **Arduino**: Upload `hardware/arduino_code.ino`, connect DS18B20 (temperature), pH sensor, humidity sensor
 2. **ESP8266**: Upload `hardware/esp8266_code.ino`, update WiFi credentials (`WIFI_SSID`, `WIFI_PASSWORD`), server URL (`SERVER_URL`), and API key (`API_KEY`)
 
-## Testing
+### ML Model Evaluation
 
 Model evaluation scripts are available in the `ml/` directory:
 
@@ -248,52 +248,25 @@ python ml/preprocess.py data/cpdata.csv data/processed_data.csv
 
 ## Deployment
 
-### Production Deployment
+For production deployment, use a WSGI server:
 
-1. Set environment variables for production:
-   ```env
-   FLASK_ENV=production
-   DEBUG=False
-   ```
+```bash
+gunicorn -w 4 -b 0.0.0.0:5000 app:app
+```
 
-2. Use a production WSGI server:
-   ```bash
-   gunicorn -w 4 -b 0.0.0.0:5000 app:app
-   ```
-
-3. Configure MongoDB for production (replica set, authentication, etc.)
-
-4. Set up reverse proxy (nginx/Apache) for SSL termination
-
-### Hardware Deployment
-
-- Ensure stable WiFi connection for ESP8266
-- Implement error handling and retry logic for network failures
-- Consider local data buffering on device for offline operation
+Set environment variables for production (`FLASK_ENV=production`, `DEBUG=False`) and configure MongoDB with authentication and replica sets. Set up a reverse proxy (nginx/Apache) for SSL termination.
 
 ## Troubleshooting
 
-**MongoDB Connection Issues**
-- Verify MongoDB is running: `mongosh` or check service status
-- Check `DB_URI` in `.env` matches your MongoDB setup
-- Ensure network connectivity if using remote MongoDB
+**MongoDB Connection Issues**: Verify MongoDB is running (`mongosh` or check service status), ensure `DB_URI` in `.env` matches your setup, check network connectivity for remote MongoDB.
 
-**Model Not Found Errors**
-- Train models first: `python ml/train_model.py data/cpdata.csv`
-- Verify `MODEL_PATH` in config points to correct location
-- System will use rule-based fallback if model unavailable
+**Model Not Found Errors**: Train models with `python ml/train_model.py data/cpdata.csv`, verify `MODEL_PATH` in config points to correct location. System uses rule-based fallback if model unavailable.
 
-**API Key Authentication Errors**
-- Ensure `X-API-Key` header is included in requests
-- Verify API key matches `API_KEY` in `.env`
+**API Key Authentication Errors**: Ensure `X-API-Key` header is included in requests, verify API key matches `API_KEY` in `.env`.
 
-**Import Errors**
-- Activate virtual environment: `source venv/bin/activate` (Linux/Mac) or `venv\Scripts\activate` (Windows)
-- Reinstall dependencies: `pip install -r backend/requirements.txt`
+**Import Errors**: Activate virtual environment (`source venv/bin/activate` or `venv\Scripts\activate`), reinstall dependencies with `pip install -r backend/requirements.txt`.
 
-**Port Already in Use**
-- Change port: `export PORT=5001` or update in `.env`
-- Kill existing process: `lsof -ti:5000 | xargs kill` (Linux/Mac)
+**Port Already in Use**: Change port via `export PORT=5001` or update in `.env`, kill existing process if needed.
 
 ## Optional Enhancements
 
@@ -304,6 +277,8 @@ If needed, you could add:
 - Published OpenAPI/Swagger spec for interactive API documentation
 - Sample seed script to populate initial crop data and test sensor readings
 - Alerting hooks for out-of-range environmental conditions (email/webhook)
+- CI/CD pipeline for automated testing and deployment
+- Web dashboard for real-time sensor data visualization
 
 ## License
 
